@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { Plus, Users, Calendar, CheckCircle, Clock, AlertCircle, LogOut, Search, X, MoreVertical, Trash2 } from 'lucide-react'
 import { projectService } from '../services'
 import CreateProjectModal from '../components/CreateProjectModal'
+import ThemeToggle from '../components/ThemeToggle'
 
 const Dashboard = () => {
   const { user, logout } = useAuth()
@@ -113,9 +114,9 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
@@ -123,14 +124,15 @@ const Dashboard = () => {
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                   <Users className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gray-900">SynergySphere</span>
+                <span className="text-xl font-bold text-gray-900 dark:text-white">SynergySphere</span>
               </div>
               <div className="hidden md:block text-gray-400">|</div>
-              <h1 className="hidden md:block text-lg font-medium text-gray-700">Dashboard</h1>
+              <h1 className="hidden md:block text-lg font-medium text-gray-700 dark:text-gray-300">Dashboard</h1>
             </div>
             
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user?.name}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-300">Welcome, {user?.name}</span>
+              <ThemeToggle />
               <button
                 onClick={handleLogout}
                 className="btn btn-secondary"
@@ -215,17 +217,17 @@ const Dashboard = () => {
               return (
                 <div 
                   key={project._id} 
-                  className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-slate-300 transition-all duration-300 cursor-pointer relative"
+                  className="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 p-6 hover:shadow-xl hover:border-slate-300 dark:hover:border-gray-600 transition-all duration-300 cursor-pointer relative"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <h3 
                       onClick={() => navigate(`/project/${project._id}`)}
-                      className="text-lg font-bold text-slate-900 truncate pr-2 flex-1"
+                      className="text-lg font-bold text-slate-900 dark:text-white truncate pr-2 flex-1"
                     >
                       {project.name}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center text-sm text-slate-500 gap-1">
+                      <div className="flex items-center text-sm text-slate-500 dark:text-gray-400 gap-1">
                         <Users className="w-4 h-4" />
                         <span>{memberCount}</span>
                       </div>
@@ -236,18 +238,18 @@ const Dashboard = () => {
                               e.stopPropagation()
                               setShowProjectMenu(showProjectMenu === project._id ? null : project._id)
                             }}
-                            className="p-1 hover:bg-slate-100 rounded transition-colors"
+                            className="p-1 hover:bg-slate-100 dark:hover:bg-gray-700 rounded transition-colors"
                           >
-                            <MoreVertical className="w-4 h-4 text-slate-500" />
+                            <MoreVertical className="w-4 h-4 text-slate-500 dark:text-gray-400" />
                           </button>
                           {showProjectMenu === project._id && (
-                            <div className="absolute right-0 top-8 bg-white border border-slate-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+                            <div className="absolute right-0 top-8 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-lg shadow-lg z-10 min-w-[120px]">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   handleDeleteProject(project._id)
                                 }}
-                                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 rounded-lg"
+                                className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 rounded-lg"
                               >
                                 <Trash2 className="w-4 h-4" />
                                 Delete
@@ -260,17 +262,17 @@ const Dashboard = () => {
                   </div>
                   
                   {project.description && (
-                    <p className="text-slate-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                    <p className="text-slate-600 dark:text-gray-300 text-sm mb-4 line-clamp-2 leading-relaxed">
                       {project.description}
                     </p>
                   )}
                   
                   <div className="mb-4">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-slate-700">Progress</span>
-                      <span className="text-sm text-slate-500">{progressPercentage}%</span>
+                      <span className="text-sm font-medium text-slate-700 dark:text-gray-300">Progress</span>
+                      <span className="text-sm text-slate-500 dark:text-gray-400">{progressPercentage}%</span>
                     </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div className="w-full bg-slate-200 dark:bg-gray-700 rounded-full h-2">
                       <div 
                         className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${progressPercentage}%` }}
@@ -279,34 +281,34 @@ const Dashboard = () => {
                   </div>
                   
                   <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="bg-slate-50 rounded-lg p-3 text-center">
-                      <Clock className="w-4 h-4 text-slate-500 mx-auto mb-1" />
-                      <div className="text-sm font-medium text-slate-900">{todoTasks}</div>
-                      <div className="text-xs text-slate-500">To Do</div>
+                    <div className="bg-slate-50 dark:bg-gray-700 rounded-lg p-3 text-center">
+                      <Clock className="w-4 h-4 text-slate-500 dark:text-gray-400 mx-auto mb-1" />
+                      <div className="text-sm font-medium text-slate-900 dark:text-white">{todoTasks}</div>
+                      <div className="text-xs text-slate-500 dark:text-gray-400">To Do</div>
                     </div>
                     
-                    <div className="bg-blue-50 rounded-lg p-3 text-center">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 text-center">
                       <AlertCircle className="w-4 h-4 text-blue-500 mx-auto mb-1" />
-                      <div className="text-sm font-medium text-slate-900">{inProgressTasks}</div>
-                      <div className="text-xs text-slate-500">In Progress</div>
+                      <div className="text-sm font-medium text-slate-900 dark:text-white">{inProgressTasks}</div>
+                      <div className="text-xs text-slate-500 dark:text-gray-400">In Progress</div>
                     </div>
                     
-                    <div className="bg-emerald-50 rounded-lg p-3 text-center">
+                    <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-3 text-center">
                       <CheckCircle className="w-4 h-4 text-emerald-500 mx-auto mb-1" />
-                      <div className="text-sm font-medium text-slate-900">{completedTasks}</div>
-                      <div className="text-xs text-slate-500">Done</div>
+                      <div className="text-sm font-medium text-slate-900 dark:text-white">{completedTasks}</div>
+                      <div className="text-xs text-slate-500 dark:text-gray-400">Done</div>
                     </div>
                   </div>
                   
                   <div 
                     onClick={() => navigate(`/project/${project._id}`)}
-                    className="flex justify-between items-center pt-4 border-t border-slate-100"
+                    className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-gray-700"
                   >
-                    <div className="flex items-center text-sm text-slate-500 gap-1">
+                    <div className="flex items-center text-sm text-slate-500 dark:text-gray-400 gap-1">
                       <Calendar className="w-4 h-4" />
                       <span>{new Date(project.createdAt).toLocaleDateString()}</span>
                     </div>
-                    <span className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <span className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium">
                       View Project →
                     </span>
                   </div>

@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import TaskBoard from '../components/TaskBoard'
 import CreateTaskModal from '../components/CreateTaskModal'
 import ProjectSettingsModal from '../components/ProjectSettingsModal'
+import ThemeToggle from '../components/ThemeToggle'
 
 const ProjectDetail = () => {
   const { id } = useParams()
@@ -141,11 +142,13 @@ const ProjectDetail = () => {
 
   const filteredTasks = tasks.filter(task => {
     const matchesFilter = taskFilter === 'all' || task.status === taskFilter
-    const matchesSearch = !taskSearch || 
-      task.title.toLowerCase().includes(taskSearch.toLowerCase()) ||
-      task.description?.toLowerCase().includes(taskSearch.toLowerCase())
+    const matchesSearch = !taskSearch.trim() || 
+      (task.title && task.title.toLowerCase().includes(taskSearch.toLowerCase().trim())) ||
+      (task.description && task.description.toLowerCase().includes(taskSearch.toLowerCase().trim()))
+    
     return matchesFilter && matchesSearch
   })
+
 
   const handleProjectUpdate = async (projectData) => {
     try {
@@ -254,38 +257,36 @@ const ProjectDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-slate-200">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-slate-600" />
+                <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">{project?.name}</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(project?.status)}`}>
-                    {project?.status}
-                  </span>
-                  <span className="text-sm text-slate-500">
-                    {project?.members?.length || 0} members
-                  </span>
-                </div>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">{project?.name}</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{project?.description}</p>
               </div>
             </div>
-            {isAdmin && (
-              <button 
-                onClick={() => setShowProjectSettings(true)}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-              >
-                <Settings className="w-5 h-5 text-slate-600" />
-              </button>
-            )}
+          
+            <div className="flex items-center space-x-2">
+              <ThemeToggle />
+              {isOwner && (
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Project Settings"
+                >
+                  <Settings className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -302,15 +303,15 @@ const ProjectDetail = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Project Description */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">Description</h2>
-              <p className="text-slate-600 leading-relaxed">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-slate-200 dark:border-gray-700 p-6">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Description</h2>
+              <p className="text-slate-600 dark:text-gray-300 leading-relaxed">
                 {project?.description || 'No description provided.'}
               </p>
             </div>
 
             {/* Task Controls */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-slate-200 dark:border-gray-700 p-4">
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                 <div className="flex flex-col sm:flex-row gap-3 flex-1">
                   <input
@@ -318,12 +319,12 @@ const ProjectDetail = () => {
                     placeholder="Search tasks..."
                     value={taskSearch}
                     onChange={(e) => setTaskSearch(e.target.value)}
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-2 border border-slate-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <select
                     value={taskFilter}
                     onChange={(e) => setTaskFilter(e.target.value)}
-                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-2 border border-slate-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="all">All Tasks</option>
                     <option value="todo">To Do</option>
@@ -338,13 +339,13 @@ const ProjectDetail = () => {
                     <div className="flex gap-2">
                       <button
                         onClick={() => setShowBulkActions(!showBulkActions)}
-                        className="px-3 py-2 bg-slate-100 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors"
+                        className="px-3 py-2 bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors"
                       >
                         Bulk Actions ({selectedTasks.length})
                       </button>
                       <button
                         onClick={() => setSelectedTasks([])}
-                        className="px-3 py-2 bg-slate-100 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors"
+                        className="px-3 py-2 bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors"
                       >
                         Clear
                       </button>
@@ -364,8 +365,8 @@ const ProjectDetail = () => {
               
               {/* Bulk Actions Panel */}
               {showBulkActions && selectedTasks.length > 0 && (
-                <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                  <h4 className="text-sm font-medium text-slate-900 mb-3">Bulk Actions</h4>
+                <div className="mt-4 p-4 bg-slate-50 dark:bg-gray-700 rounded-lg border border-slate-200 dark:border-gray-600">
+                  <h4 className="text-sm font-medium text-slate-900 dark:text-white mb-3">Bulk Actions</h4>
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={handleBulkDeleteTasks}
@@ -375,7 +376,7 @@ const ProjectDetail = () => {
                     </button>
                     <select
                       onChange={(e) => e.target.value && handleBulkUpdateStatus(e.target.value)}
-                      className="px-3 py-1 border border-slate-300 rounded-lg text-sm"
+                      className="px-3 py-1 border border-slate-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-slate-900 dark:text-white"
                       defaultValue=""
                     >
                       <option value="">Change Status...</option>
@@ -386,7 +387,7 @@ const ProjectDetail = () => {
                     </select>
                     <select
                       onChange={(e) => e.target.value && handleBulkAssignTasks(e.target.value)}
-                      className="px-3 py-1 border border-slate-300 rounded-lg text-sm"
+                      className="px-3 py-1 border border-slate-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-slate-900 dark:text-white"
                       defaultValue=""
                     >
                       <option value="">Assign to...</option>
@@ -424,24 +425,24 @@ const ProjectDetail = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Project Stats */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Project Stats</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-slate-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Project Stats</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Created</span>
-                  <span className="text-sm font-medium text-slate-900">
+                  <span className="text-sm text-slate-600 dark:text-gray-400">Created</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-white">
                     {project?.createdAt ? new Date(project.createdAt).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Owner</span>
-                  <span className="text-sm font-medium text-slate-900">
+                  <span className="text-sm text-slate-600 dark:text-gray-400">Owner</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-white">
                     {project?.owner?.name || 'Unknown'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Tasks</span>
-                  <span className="text-sm font-medium text-slate-900">
+                  <span className="text-sm text-slate-600 dark:text-gray-400">Tasks</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-white">
                     {project?.tasks?.length || 0}
                   </span>
                 </div>
@@ -449,15 +450,15 @@ const ProjectDetail = () => {
             </div>
 
             {/* Team Members */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-slate-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-900">Team Members</h3>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Team Members</h3>
                 {isAdmin && (
                   <button
                     onClick={() => setShowAddMember(true)}
-                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
-                    <UserPlus className="w-4 h-4 text-slate-600" />
+                    <UserPlus className="w-4 h-4 text-slate-600 dark:text-gray-400" />
                   </button>
                 )}
               </div>
@@ -484,14 +485,14 @@ const ProjectDetail = () => {
                           className="w-3 h-3 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
                         />
                       )}
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-blue-600">
+                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
                           {member.user.name?.charAt(0)?.toUpperCase()}
                         </span>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{member.user.name}</p>
-                        <p className="text-xs text-slate-500">{member.user.email}</p>
+                        <p className="text-sm font-medium text-slate-900 dark:text-white">{member.user.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-gray-400">{member.user.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -500,14 +501,14 @@ const ProjectDetail = () => {
                           <select
                             value={member.role}
                             onChange={(e) => handleUpdateRole(member.user._id, e.target.value)}
-                            className="px-2 py-1 text-xs border border-slate-300 rounded"
+                            className="px-2 py-1 text-xs border border-slate-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-slate-900 dark:text-white"
                           >
                             <option value="member">Member</option>
                             <option value="admin">Admin</option>
                           </select>
                           <button
                             onClick={() => setEditingMember(null)}
-                            className="text-xs text-slate-500 hover:text-slate-700"
+                            className="text-xs text-slate-500 dark:text-gray-400 hover:text-slate-700 dark:hover:text-gray-300"
                           >
                             Cancel
                           </button>
@@ -526,7 +527,7 @@ const ProjectDetail = () => {
                           {isAdmin && member.user._id !== user?.userId && member.user._id !== project?.owner?._id && (
                             <button
                               onClick={() => handleRemoveMember(member.user._id)}
-                              className="p-1 hover:bg-red-50 rounded transition-colors"
+                              className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                               title="Remove member"
                             >
                               <UserMinus className="w-3 h-3 text-red-500" />
@@ -541,33 +542,33 @@ const ProjectDetail = () => {
 
               {/* Member Search and Bulk Actions */}
               {project?.members?.length > 3 && (
-                <div className="mt-4 pt-4 border-t border-slate-200">
+                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-gray-600">
                   <input
                     type="text"
                     placeholder="Search members..."
                     value={memberSearch}
                     onChange={(e) => setMemberSearch(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3"
                   />
                   {selectedMembers.length > 0 && (
                     <div className="flex gap-2 mb-3">
                       <button
                         onClick={() => setShowBulkMemberActions(!showBulkMemberActions)}
-                        className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-lg hover:bg-slate-200 transition-colors"
+                        className="px-3 py-1 bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300 text-xs font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors"
                       >
                         Bulk Actions ({selectedMembers.length})
                       </button>
                       <button
                         onClick={() => setSelectedMembers([])}
-                        className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-lg hover:bg-slate-200 transition-colors"
+                        className="px-3 py-1 bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300 text-xs font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors"
                       >
                         Clear
                       </button>
                     </div>
                   )}
                   {showBulkMemberActions && selectedMembers.length > 0 && (
-                    <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 mb-3">
-                      <h5 className="text-xs font-medium text-slate-900 mb-2">Bulk Member Actions</h5>
+                    <div className="p-3 bg-slate-50 dark:bg-gray-700 rounded-lg border border-slate-200 dark:border-gray-600 mb-3">
+                      <h5 className="text-xs font-medium text-slate-900 dark:text-white mb-2">Bulk Member Actions</h5>
                       <div className="flex gap-2">
                         <button
                           onClick={() => {
@@ -589,7 +590,7 @@ const ProjectDetail = () => {
                               setShowBulkMemberActions(false)
                             }
                           }}
-                          className="px-2 py-1 border border-slate-300 rounded text-xs"
+                          className="px-2 py-1 border border-slate-300 dark:border-gray-600 rounded text-xs bg-white dark:bg-gray-700 text-slate-900 dark:text-white"
                           defaultValue=""
                         >
                           <option value="">Change Role...</option>

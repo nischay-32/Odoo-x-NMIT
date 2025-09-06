@@ -7,6 +7,7 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
   const [selectedTaskId, setSelectedTaskId] = useState(null)
   const [dragOverColumn, setDragOverColumn] = useState(null)
 
+
   const taskColumns = [
     { id: 'todo', title: 'To Do', color: 'bg-slate-100' },
     { id: 'in-progress', title: 'In Progress', color: 'bg-blue-100' },
@@ -99,9 +100,9 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-slate-200 dark:border-gray-700 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-slate-900">Tasks</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Tasks</h2>
         {isAdmin && (
           <button
             onClick={onCreateTask}
@@ -115,11 +116,11 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
 
       {tasks.length === 0 ? (
         <div className="text-center py-12">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Plus className="w-8 h-8 text-slate-400" />
+          <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Plus className="w-8 h-8 text-slate-400 dark:text-gray-500" />
           </div>
-          <h3 className="text-lg font-medium text-slate-900 mb-2">No tasks yet</h3>
-          <p className="text-slate-500 mb-4">Create your first task to get started with project management.</p>
+          <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No tasks yet</h3>
+          <p className="text-slate-500 dark:text-gray-400 mb-4">Create your first task to get started with project management.</p>
           {isAdmin && (
             <button
               onClick={onCreateTask}
@@ -147,8 +148,8 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
                 onDrop={(e) => handleDrop(e, column.id)}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-medium text-slate-900">{column.title}</h3>
-                  <span className="bg-white/60 text-slate-600 text-xs px-2 py-1 rounded-full">
+                  <h3 className="font-medium text-slate-900 dark:text-white">{column.title}</h3>
+                  <span className="text-sm text-slate-500 dark:text-gray-400 bg-white/60 dark:bg-gray-700/60 px-2 py-1 rounded-full">
                     {columnTasks.length}
                   </span>
                 </div>
@@ -169,10 +170,10 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
                           setSelectedTaskId(task._id)
                         }
                       }}
-                      className={`bg-white rounded-lg p-3 shadow-sm border-l-4 ${getPriorityColor(task.priority)} cursor-pointer hover:shadow-md transition-all duration-200 ${
+                      className={`bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm border-l-4 ${getPriorityColor(task.priority)} cursor-pointer hover:shadow-md transition-all duration-200 ${
                         isAdmin ? 'cursor-move hover:scale-105' : ''
                       } ${draggedTask && draggedTask._id === task._id ? 'opacity-50 transform rotate-2' : ''} ${
-                        selectedTasks.includes(task._id) ? 'ring-2 ring-blue-400 bg-blue-50' : ''
+                        selectedTasks.includes(task._id) ? 'ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-900/20' : ''
                       }`}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -188,7 +189,7 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
                               className="mt-1 w-3 h-3 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
                             />
                           )}
-                          <h4 className="text-sm font-medium text-slate-900 line-clamp-2 flex-1">
+                          <h4 className="text-sm font-medium text-slate-900 dark:text-white line-clamp-2 flex-1">
                             {task.title}
                           </h4>
                         </div>
@@ -224,16 +225,14 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
                       </div>
 
                       {task.description && (
-                        <p className="text-xs text-slate-600 mb-3 line-clamp-2">
-                          {task.description}
-                        </p>
+                        <p className="text-sm text-slate-600 dark:text-gray-300 mb-3">{task.description}</p>
                       )}
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {getPriorityIcon(task.priority)}
                           {task.dueDate && (
-                            <div className="flex items-center gap-1 text-xs text-slate-500">
+                              <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-gray-400">
                               <Calendar className="w-3 h-3" />
                               {formatDate(task.dueDate)}
                             </div>
@@ -242,8 +241,8 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
 
                         {task.assignee && (
                           <div className="flex items-center gap-1">
-                            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                              <span className="text-xs font-medium text-blue-600">
+                            <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
+                              <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
                                 {getAssigneeInitials(task.assignee)}
                               </span>
                             </div>
@@ -256,13 +255,13 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
                           {task.tags.slice(0, 2).map((tag, index) => (
                             <span
                               key={index}
-                              className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded-full"
+                              className="bg-slate-100 dark:bg-gray-700 text-slate-600 dark:text-gray-300 text-xs px-2 py-1 rounded-full"
                             >
                               {tag}
                             </span>
                           ))}
                           {task.tags.length > 2 && (
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 dark:text-gray-400">
                               +{task.tags.length - 2}
                             </span>
                           )}
