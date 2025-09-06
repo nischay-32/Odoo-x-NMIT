@@ -19,6 +19,7 @@ const connectDb = require("./db/connectDb");
 // Routers
 const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
+const teamRoutes = require('./routes/teamRoutes');
 
 // Middleware
 const notFoundMiddleware = require('./middleware/not-found');
@@ -45,6 +46,7 @@ app.use(cors());
 //routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/projects', projectRoutes);
+app.use('/api/v1/teams', teamRoutes); // Team management routes
 
 
 //middleware

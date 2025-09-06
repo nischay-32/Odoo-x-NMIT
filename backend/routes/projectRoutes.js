@@ -1,12 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateUser } = require('../middleware/authentication');
-const { getAllProjects } = require('../controllers/projectController');
+const { 
+  getAllProjects,
+  createProject,
+  getSingleProject,
+  updateProject,
+  deleteProject 
+} = require('../controllers/projectController');
 
-// Protect all routes with authentication
+// All routes require authentication
 router.use(authenticateUser);
 
-// Get all projects for the logged-in user
-router.get('/', getAllProjects);
+router.route('/')
+  .get(getAllProjects)
+  .post(createProject);
+
+router.route('/:id')
+  .get(getSingleProject)
+  .patch(updateProject)
+  .delete(deleteProject);
 
 module.exports = router;
