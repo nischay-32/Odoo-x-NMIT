@@ -2,25 +2,25 @@ const express = require('express');
 const router = express.Router();
 const { authenticateUser } = require('../middleware/authentication');
 const {
+  getProjectTeam,
   addTeamMember,
   removeTeamMember,
-  updateMemberRole,
-  getProjectTeam
+  updateMemberRole
 } = require('../controllers/teamController');
 
 // All routes require authentication
 router.use(authenticateUser);
 
-// Get project team
-router.get('/:projectId/team', getProjectTeam);
+// Get all team members for a project
+router.get('/:projectId/members', getProjectTeam);
 
-// Add team member
-router.post('/:projectId/team', addTeamMember);
+// Add a member to a project
+router.post('/:projectId/members', addTeamMember);
 
-// Update team member role
-router.patch('/:projectId/team/:userId', updateMemberRole);
+// Remove a member from a project
+router.delete('/:projectId/members/:memberId', removeTeamMember);
 
-// Remove team member
-router.delete('/:projectId/team/:userId', removeTeamMember);
+// Update member role
+router.patch('/:projectId/members/:memberId/role', updateMemberRole);
 
 module.exports = router;

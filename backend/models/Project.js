@@ -19,8 +19,20 @@ const ProjectSchema = new mongoose.Schema(
     },
     members: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        role: {
+          type: String,
+          enum: ["admin", "member"],
+          default: "member",
+        },
+        joinedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
     tasks: [
@@ -54,5 +66,8 @@ const ProjectSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Prevent duplicate members
+ProjectSchema.index({ _id: 1, "members.user": 1 }, { unique: true });
 
 module.exports = mongoose.model("Project", ProjectSchema);
