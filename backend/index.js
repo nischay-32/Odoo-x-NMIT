@@ -18,6 +18,7 @@ const connectDb = require("./db/connectDb");
 
 // Routers
 const authRoutes = require('./routes/authRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 
 // Middleware
 const notFoundMiddleware = require('./middleware/not-found');
@@ -41,9 +42,9 @@ app.use(cors());
 
 
 
-
 //routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/projects', projectRoutes);
 
 
 //middleware
