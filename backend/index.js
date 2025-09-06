@@ -20,6 +20,8 @@ const connectDb = require("./db/connectDb");
 const authRoutes = require('./routes/authRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const teamRoutes = require('./routes/teamRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 
 // Middleware
 const notFoundMiddleware = require('./middleware/not-found');
@@ -52,6 +54,8 @@ app.use(cors({
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/projects', projectRoutes);
 app.use('/api/v1/teams', teamRoutes); // Team management routes
+app.use('/api/v1', taskRoutes); // Task management routes - mount at root to handle /projects/:id/tasks
+app.use('/api/v1/comments', commentRoutes); // Comment management routes
 
 
 //middleware

@@ -1,8 +1,11 @@
 import { useState } from 'react'
-import { Plus, Calendar, User, Flag, MoreVertical, Edit, Trash2 } from 'lucide-react'
+import { Plus, Calendar, User, Flag, MoreVertical, Edit, Trash2, Eye } from 'lucide-react'
+import TaskDetailModal from './TaskDetailModal'
 
-const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, projectMembers = [], isAdmin = false }) => {
+const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, projectMembers = [], isAdmin = false, selectedTasks = [], onTaskSelect }) => {
   const [draggedTask, setDraggedTask] = useState(null)
+  const [selectedTaskId, setSelectedTaskId] = useState(null)
+  const [dragOverColumn, setDragOverColumn] = useState(null)
 
   const taskColumns = [
     { id: 'todo', title: 'To Do', color: 'bg-slate-100' },
@@ -38,6 +41,13 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
   const handleDragStart = (e, task) => {
     setDraggedTask(task)
     e.dataTransfer.effectAllowed = 'move'
+    e.target.style.opacity = '0.5'
+  }
+
+  const handleDragEnd = (e) => {
+    e.target.style.opacity = '1'
+    setDraggedTask(null)
+    setDragOverColumn(null)
   }
 
   const handleDragOver = (e) => {
@@ -45,8 +55,23 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
     e.dataTransfer.dropEffect = 'move'
   }
 
+  const handleDragEnter = (e, columnId) => {
+    e.preventDefault()
+    setDragOverColumn(columnId)
+  }
+
+  const handleDragLeave = (e) => {
+    e.preventDefault()
+    // Only clear if we're leaving the column entirely
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setDragOverColumn(null)
+    }
+  }
+
   const handleDrop = (e, newStatus) => {
     e.preventDefault()
+    setDragOverColumn(null)
+    
     if (draggedTask && draggedTask.status !== newStatus) {
       onUpdateTask(draggedTask._id, { status: newStatus })
     }
@@ -65,10 +90,12 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
     return member ? member.user.name : 'Unknown'
   }
 
-  const getAssigneeInitials = (assigneeId) => {
-    if (!assigneeId) return '?'
-    const member = projectMembers.find(m => m.user._id === assigneeId)
-    return member ? member.user.name.charAt(0).toUpperCase() : '?'
+  const getAssigneeInitials = (assignee) => {
+    if (!assignee) return '?'
+    // Handle both populated assignee object and assignee ID
+    const name = typeof assignee === 'object' ? assignee.name : 
+                 projectMembers.find(m => m.user._id === assignee)?.user.name
+    return name ? name.charAt(0).toUpperCase() : '?'
   }
 
   return (
@@ -111,8 +138,12 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
             return (
               <div
                 key={column.id}
-                className={`${column.color} rounded-lg p-4 min-h-[200px]`}
+                className={`${column.color} rounded-lg p-4 min-h-[200px] transition-all duration-200 ${
+                  dragOverColumn === column.id ? 'ring-2 ring-blue-400 ring-opacity-50 bg-opacity-80' : ''
+                } ${draggedTask && draggedTask.status !== column.id ? 'border-2 border-dashed border-blue-300' : ''}`}
                 onDragOver={handleDragOver}
+                onDragEnter={(e) => handleDragEnter(e, column.id)}
+                onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, column.id)}
               >
                 <div className="flex items-center justify-between mb-4">
@@ -128,14 +159,39 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
                       key={task._id}
                       draggable={isAdmin}
                       onDragStart={(e) => handleDragStart(e, task)}
-                      className={`bg-white rounded-lg p-3 shadow-sm border-l-4 ${getPriorityColor(task.priority)} cursor-pointer hover:shadow-md transition-shadow ${
-                        isAdmin ? 'cursor-move' : ''
+                      onDragEnd={handleDragEnd}
+                      onClick={(e) => {
+                        if (e.ctrlKey || e.metaKey) {
+                          // Multi-select with Ctrl/Cmd
+                          const isSelected = selectedTasks.includes(task._id)
+                          onTaskSelect?.(task._id, !isSelected)
+                        } else {
+                          setSelectedTaskId(task._id)
+                        }
+                      }}
+                      className={`bg-white rounded-lg p-3 shadow-sm border-l-4 ${getPriorityColor(task.priority)} cursor-pointer hover:shadow-md transition-all duration-200 ${
+                        isAdmin ? 'cursor-move hover:scale-105' : ''
+                      } ${draggedTask && draggedTask._id === task._id ? 'opacity-50 transform rotate-2' : ''} ${
+                        selectedTasks.includes(task._id) ? 'ring-2 ring-blue-400 bg-blue-50' : ''
                       }`}
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <h4 className="text-sm font-medium text-slate-900 line-clamp-2 flex-1">
-                          {task.title}
-                        </h4>
+                        <div className="flex items-start gap-2 flex-1">
+                          {isAdmin && onTaskSelect && (
+                            <input
+                              type="checkbox"
+                              checked={selectedTasks.includes(task._id)}
+                              onChange={(e) => {
+                                e.stopPropagation()
+                                onTaskSelect(task._id, e.target.checked)
+                              }}
+                              className="mt-1 w-3 h-3 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                            />
+                          )}
+                          <h4 className="text-sm font-medium text-slate-900 line-clamp-2 flex-1">
+                            {task.title}
+                          </h4>
+                        </div>
                         {isAdmin && (
                           <div className="relative group">
                             <button className="p-1 hover:bg-slate-100 rounded transition-colors">
@@ -143,14 +199,20 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
                             </button>
                             <div className="absolute right-0 top-6 bg-white border border-slate-200 rounded-lg shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
                               <button
-                                onClick={() => onUpdateTask(task._id, task)}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setSelectedTaskId(task._id)
+                                }}
                                 className="flex items-center gap-2 px-3 py-1 text-sm text-slate-700 hover:bg-slate-50 w-full text-left"
                               >
-                                <Edit className="w-3 h-3" />
-                                Edit
+                                <Eye className="w-3 h-3" />
+                                View
                               </button>
                               <button
-                                onClick={() => onDeleteTask(task._id)}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  onDeleteTask(task._id)
+                                }}
                                 className="flex items-center gap-2 px-3 py-1 text-sm text-red-600 hover:bg-red-50 w-full text-left"
                               >
                                 <Trash2 className="w-3 h-3" />
@@ -213,6 +275,18 @@ const TaskBoard = ({ tasks = [], onCreateTask, onUpdateTask, onDeleteTask, proje
             )
           })}
         </div>
+      )}
+
+      {/* Task Detail Modal */}
+      {selectedTaskId && (
+        <TaskDetailModal
+          taskId={selectedTaskId}
+          onClose={() => setSelectedTaskId(null)}
+          onUpdate={onUpdateTask}
+          onDelete={onDeleteTask}
+          projectMembers={projectMembers}
+          isAdmin={isAdmin}
+        />
       )}
     </div>
   )

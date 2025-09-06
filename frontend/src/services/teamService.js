@@ -3,25 +3,25 @@ import api from './api'
 const teamService = {
   // Get project team members
   getProjectTeam: async (projectId) => {
-    const response = await api.get(`/team/${projectId}`)
+    const response = await api.get(`/teams/${projectId}/members`)
     return response.data
   },
 
   // Add team member by email
-  addTeamMember: async (projectId, email, role = 'member') => {
-    const response = await api.post(`/team/${projectId}/add`, { email, role })
+  addTeamMember: async (projectId, memberData) => {
+    const response = await api.post(`/teams/${projectId}/members`, memberData)
     return response.data
   },
 
   // Remove team member
-  removeTeamMember: async (projectId, userId) => {
-    const response = await api.delete(`/team/${projectId}/remove/${userId}`)
+  removeTeamMember: async (projectId, memberId) => {
+    const response = await api.delete(`/teams/${projectId}/members/${memberId}`)
     return response.data
   },
 
   // Update member role
-  updateMemberRole: async (projectId, userId, role) => {
-    const response = await api.patch(`/team/${projectId}/role/${userId}`, { role })
+  updateMemberRole: async (projectId, memberId, roleData) => {
+    const response = await api.patch(`/teams/${projectId}/members/${memberId}/role`, roleData)
     return response.data
   }
 }

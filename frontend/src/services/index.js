@@ -4,11 +4,13 @@ import authService from './authService'
 import projectService from './projectService'
 import teamService from './teamService'
 import taskService from './taskService'
+import commentService from './commentService'
 
 export {
   api,
   authService,
   projectService,
   teamService,
-  taskService
+  taskService,
+  commentService
 }

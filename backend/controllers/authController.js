@@ -70,6 +70,16 @@ const login = async (req, res) => {
 };
 
 /**
+ * @desc    Get current user
+ * @route   GET /api/v1/auth/me
+ * @access  Private
+ */
+const getCurrentUser = async (req, res) => {
+  const tokenUser = createTokenUser(req.user);
+  res.status(StatusCodes.OK).json({ user: tokenUser });
+};
+
+/**
  * @desc    Logout a user
  * @route   GET /api/v1/auth/logout
  * @access  Private
@@ -83,4 +93,4 @@ const logout = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: "User logged out successfully!" });
 };
 
-module.exports = { register, login, logout };
+module.exports = { register, login, logout, getCurrentUser };
