@@ -4,7 +4,10 @@ import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import Dashboard from './pages/Dashboard'
+import ProjectDetail from './pages/ProjectDetail'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import ErrorBoundary from './components/ErrorBoundary'
+import LoadingSpinner from './components/LoadingSpinner'
 
 // Protected Route Component
 function ProtectedRoute({ children }) {
@@ -12,8 +15,8 @@ function ProtectedRoute({ children }) {
   
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="spinner"></div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <LoadingSpinner size="lg" text="Loading..." />
       </div>
     )
   }
@@ -27,8 +30,8 @@ function PublicRoute({ children }) {
   
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="spinner"></div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <LoadingSpinner size="lg" text="Loading..." />
       </div>
     )
   }
@@ -38,9 +41,10 @@ function PublicRoute({ children }) {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <div className="App">
           <Routes>
             <Route 
               path="/" 
@@ -74,10 +78,19 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/project/:id" 
+              element={
+                <ProtectedRoute>
+                  <ProjectDetail />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </div>
       </Router>
     </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import axios from 'axios'
+import { authService } from '../services'
 
 const AuthContext = createContext()
 
@@ -15,18 +15,14 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Configure axios defaults
-  axios.defaults.baseURL = 'http://localhost:5000'
-  axios.defaults.withCredentials = true
-
   useEffect(() => {
     checkAuthStatus()
   }, [])
 
   const checkAuthStatus = async () => {
     try {
-      const response = await axios.get('/api/v1/auth/me')
-      setUser(response.data.user)
+      const response = await authService.getCurrentUser()
+      setUser(response.user)
     } catch (error) {
       setUser(null)
     } finally {
@@ -36,11 +32,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('/api/v1/auth/login', {
-        email,
-        password
-      })
-      setUser(response.data.user)
+      const response = await authService.login(email, password)
+      setUser(response.user)
       return { success: true }
     } catch (error) {
       return {
@@ -52,12 +45,8 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     try {
-      const response = await axios.post('/api/v1/auth/register', {
-        name,
-        email,
-        password
-      })
-      setUser(response.data.user)
+      const response = await authService.register(name, email, password)
+      setUser(response.user)
       return { success: true }
     } catch (error) {
       return {
@@ -69,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.delete('/api/v1/auth/logout')
+      await authService.logout()
       setUser(null)
       return { success: true }
     } catch (error) {
@@ -80,12 +69,26 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const updateProfile = async (userData) => {
+    try {
+      const response = await authService.updateProfile(userData)
+      setUser(response.user)
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.msg || 'Profile update failed'
+      }
+    }
+  }
+
   const value = {
     user,
     loading,
     login,
     register,
     logout,
+    updateProfile,
     checkAuthStatus
   }
 

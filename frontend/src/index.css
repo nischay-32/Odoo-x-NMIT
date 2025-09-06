@@ -1,18 +1,14 @@
-/* Tailwind CSS imports - temporarily disabled until dependencies are installed */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Basic reset and styles for now */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  line-height: 1.6;
-  color: #1e293b;
-  background-color: #f8fafc;
+/* Custom utilities for line clamping */
+@layer utilities {
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
 }
