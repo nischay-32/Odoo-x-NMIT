@@ -34,11 +34,6 @@ const UserSchema = mongoose.Schema({
     enum: ["admin", "user"],
     default: "user",
   },
-  googleId: {
-    type: String, // For OAuth users
-    unique: true,
-    sparse: true, // Prevent index conflicts when null
-  },
   photo: {
     type: String, // Optional: profile picture from Google
   },
