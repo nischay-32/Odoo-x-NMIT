@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { Plus, Users, Calendar, CheckCircle, Clock, AlertCircle, LogOut, Search, X } from 'lucide-react'
+import { Plus, Users, Calendar, CheckCircle, Clock, AlertCircle, LogOut, Search, X, MoreVertical, Trash2 } from 'lucide-react'
 import { projectService } from '../services'
 import CreateProjectModal from '../components/CreateProjectModal'
 
@@ -20,10 +20,24 @@ const Dashboard = () => {
     currentPage: 1,
     limit: 10
   })
+  const [showProjectMenu, setShowProjectMenu] = useState(null)
 
   useEffect(() => {
     fetchProjects()
   }, [searchTerm])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showProjectMenu && !event.target.closest('.relative')) {
+        setShowProjectMenu(null)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showProjectMenu])
 
   const fetchProjects = async (page = 1) => {
     try {
@@ -58,6 +72,21 @@ const Dashboard = () => {
       throw error // Re-throw to let the modal handle the error display
     } finally {
       setCreateLoading(false)
+    }
+  }
+
+  const handleDeleteProject = async (projectId) => {
+    if (!confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      await projectService.deleteProject(projectId)
+      setProjects(prev => prev.filter(project => project._id !== projectId))
+      setShowProjectMenu(null)
+      setError('')
+    } catch (error) {
+      setError(error.response?.data?.msg || 'Failed to delete project')
     }
   }
 
@@ -186,16 +215,47 @@ const Dashboard = () => {
               return (
                 <div 
                   key={project._id} 
-                  onClick={() => navigate(`/project/${project._id}`)}
-                  className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-slate-300 transition-all duration-300 cursor-pointer"
+                  className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-slate-300 transition-all duration-300 cursor-pointer relative"
                 >
                   <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-lg font-bold text-slate-900 truncate pr-2">
+                    <h3 
+                      onClick={() => navigate(`/project/${project._id}`)}
+                      className="text-lg font-bold text-slate-900 truncate pr-2 flex-1"
+                    >
                       {project.name}
                     </h3>
-                    <div className="flex items-center text-sm text-slate-500 gap-1">
-                      <Users className="w-4 h-4" />
-                      <span>{memberCount}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center text-sm text-slate-500 gap-1">
+                        <Users className="w-4 h-4" />
+                        <span>{memberCount}</span>
+                      </div>
+                      {project.userRole === 'owner' && (
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowProjectMenu(showProjectMenu === project._id ? null : project._id)
+                            }}
+                            className="p-1 hover:bg-slate-100 rounded transition-colors"
+                          >
+                            <MoreVertical className="w-4 h-4 text-slate-500" />
+                          </button>
+                          {showProjectMenu === project._id && (
+                            <div className="absolute right-0 top-8 bg-white border border-slate-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleDeleteProject(project._id)
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 rounded-lg"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -238,7 +298,10 @@ const Dashboard = () => {
                     </div>
                   </div>
                   
-                  <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+                  <div 
+                    onClick={() => navigate(`/project/${project._id}`)}
+                    className="flex justify-between items-center pt-4 border-t border-slate-100"
+                  >
                     <div className="flex items-center text-sm text-slate-500 gap-1">
                       <Calendar className="w-4 h-4" />
                       <span>{new Date(project.createdAt).toLocaleDateString()}</span>

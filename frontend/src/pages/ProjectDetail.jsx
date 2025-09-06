@@ -157,6 +157,16 @@ const ProjectDetail = () => {
     }
   }
 
+  const handleProjectDelete = async (projectId) => {
+    try {
+      await projectService.deleteProject(projectId)
+      navigate('/dashboard')
+    } catch (error) {
+      setError(error.response?.data?.msg || 'Failed to delete project')
+      throw error
+    }
+  }
+
   const handleCreateTask = async (taskData) => {
     setCreateTaskLoading(true)
     try {
@@ -656,6 +666,7 @@ const ProjectDetail = () => {
           project={project}
           onClose={() => setShowProjectSettings(false)}
           onUpdate={handleProjectUpdate}
+          onDelete={isOwner ? handleProjectDelete : null}
         />
       )}
     </div>
